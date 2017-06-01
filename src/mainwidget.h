@@ -52,7 +52,7 @@
 #define MAINWIDGET_H
 
 #include "geometryengine.h"
-#include "cuboid.h"
+#include "humanoid.h"
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
@@ -90,7 +90,7 @@ private:
     QBasicTimer timer;
     QOpenGLShaderProgram program;
     GeometryEngine *geometries;
-    Cuboid *torso, *head, *leftArm, *rightArm, *leg1,*leg2;
+    Humanoid *harry;
 
     QMatrix4x4 projection;
 

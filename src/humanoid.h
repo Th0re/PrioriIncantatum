@@ -9,17 +9,20 @@ public:
     Humanoid(float lenght, float height, float width);
     Humanoid(float armsAngle, float lenght, float height, float width);
     Humanoid(float lenght, float height, float width, float leftArmAngle, float rightArmAngle);
+    Humanoid();
     ~Humanoid();
 
-    void changeLeftArmAngle(float newAngle);
-    void changeRightArmAngle(float newAngle);
+    void setLeftArmAngle(float newAngle);
+    void setRightArmAngle(float newAngle);
+    float getLeftArmAngle();
+    float getRightArmAngle();
 
-    void drawGeometry(QOpenGLShaderProgram *program);
+    void drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 projection, QMatrix4x4 baseMatrix);
 
 
 private:
     Cuboid *torso, *head, *leftArm, *rightArm, *leg1, *leg2;
-    float leftArmAngle, rightArmAngle;
+    float lenght, height, width, leftArmAngle, rightArmAngle;
 };
 
 #endif // HUMANOID_H

@@ -67,6 +67,7 @@ MainWidget::~MainWidget()
     // and the buffers.
     makeCurrent();
     delete geometries;
+    delete harry;
     doneCurrent();
 }
 
@@ -121,19 +122,18 @@ void MainWidget::keyPressEvent(QKeyEvent *e) {
         exit(0);
     }
     if (e->key() == Qt::Key_Left) {
-        leftArmRotation = leftArmRotation + ( leftArmRotationUp? -3 : 3 );
-        if (leftArmRotation > 180) {
+        harry->setLeftArmAngle(harry->getLeftArmAngle() + ( leftArmRotationUp? -3 : 3 ));
+        if (harry->getLeftArmAngle() > 180) {
             leftArmRotationUp = true;
-        } else if (leftArmRotation < 0) {
+        } else if (harry->getLeftArmAngle() < 0) {
             leftArmRotationUp = false;
         }
-        printf("%f, %d \n", leftArmRotation, leftArmRotationUp);
     }
     if (e->key() == Qt::Key_Right) {
-        rightArmRotation = rightArmRotation + ( rightArmRotationUp? -3 : 3 );
-        if (rightArmRotation > 180) {
+        harry->setRightArmAngle(harry->getRightArmAngle()  + ( rightArmRotationUp? -3 : 3 ));
+        if (harry->getRightArmAngle() > 180) {
             rightArmRotationUp = true;
-        } else if (rightArmRotation < 0) {
+        } else if (harry->getRightArmAngle() < 0) {
             rightArmRotationUp = false;
         }
     }
@@ -158,12 +158,7 @@ void MainWidget::initializeGL()
 //! [2]
 
     geometries = new GeometryEngine;
-    torso = new Cuboid(3,7,2);
-    head = new Cuboid(2);
-    leftArm = new Cuboid(1,4,1);
-    rightArm = new Cuboid(1,4,1);
-    leg1 = new Cuboid(1,5,1);
-    leg2 = new Cuboid(1,5,1);
+    harry = new Humanoid(3.0, 14.0, 5.0, 180.0, 90.0);
 
     // Use QBasicTimer because its faster than QTimer
     timer.start(12, this);
@@ -198,7 +193,7 @@ void MainWidget::resizeGL(int w, int h)
     qreal aspect = qreal(w) / qreal(h ? h : 1);
 
     // Set near plane to 3.0, far plane to 7.0, field of view 45 degrees
-    const qreal zNear = 1.0, zFar = 50.0, fov = 45.0;
+    const qreal zNear = 1.0, zFar = 50.0, fov = 65.0;
 
     // Reset projection
     projection.setToIdentity();
@@ -216,48 +211,22 @@ void MainWidget::paintGL()
 //! [6]
     // Calculate model view transformation
     QMatrix4x4 baseMatrix;
-    baseMatrix.translate(0.0, -2.0, -20.0);
+    baseMatrix.translate(0.0, -5.0, -35.0);
     baseMatrix.rotate(rotation);
 
+    program.setUniformValue("mvp", projection * baseMatrix);
+    geometries->drawGeometry(&program);
+
     QMatrix4x4 matrix(baseMatrix);
-    matrix.translate(-1.5, 0.0, 0.0);
-
-    // Set modelview-projection matrix
-    program.setUniformValue("mvp", projection * matrix);
-    // Draw cube geometry
-    torso->drawGeometry(&program);
+    matrix.translate(20.0, -5.0, -1.0);
+    matrix.rotate(10, 0.0, 1.0, 0.0);
+    program.setUniformValue("mvp", projection * baseMatrix);
+    harry->drawGeometry(&program, projection, matrix);
 
     matrix = baseMatrix;
-    matrix.translate(-1.0, 7.0, 0.0);
-    program.setUniformValue("mvp", projection * matrix);
-
-    head->drawGeometry(&program);
-
-    matrix = baseMatrix;
-    matrix.translate(-1.5-1, 6.9, 0.5);
-    matrix.rotate(leftArmRotation, 1, 0);
-    program.setUniformValue("mvp", projection * matrix);
-
-    leftArm->drawGeometry(&program);
-
-    matrix = baseMatrix;
-    matrix.translate(1.5, 6.9, 0.5);
-    matrix.rotate(rightArmRotation, 1, 0, 0);
-    program.setUniformValue("mvp", projection * matrix);
-
-    rightArm->drawGeometry(&program);
-
-    matrix = baseMatrix;
-    matrix.translate(-1.5, -5.0, 0.5);
-    program.setUniformValue("mvp", projection * matrix);
-
-    leg1->drawGeometry(&program);
-
-    matrix = baseMatrix;
-    matrix.translate(0.5, -5.0, 0.5);
-    program.setUniformValue("mvp", projection * matrix);
-
-    leg2->drawGeometry(&program);
-
+    matrix.translate(-20.0, -5.0, 1.0);
+    matrix.rotate(190, 0.0, 1.0, 0.0);
+    program.setUniformValue("mvp", projection * baseMatrix);
+    harry->drawGeometry(&program, projection, matrix);
 
 }
