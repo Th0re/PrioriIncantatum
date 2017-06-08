@@ -8,14 +8,20 @@ SOURCES += \
     src/mainwidget.cpp \
     src/geometryengine.cpp \
     src/cuboid.cpp \
-    src/humanoid.cpp
+    src/humanoid.cpp \
+    src/particulefountain.cpp \
+    src/particle.cpp
 
 HEADERS += \
     src/mainwidget.h \
     src/geometryengine.h \
     src/cuboid.h \
-    src/humanoid.h
+    src/humanoid.h \
+    src/particulefountain.h \
+    src/particle.h
 
 RESOURCES += \
     ressources/shaders.qrc \
+
+DISTFILES +=
 
