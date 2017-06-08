@@ -59,6 +59,7 @@ MainWidget::MainWidget(QWidget *parent) :
     geometries(0),
     angularSpeed(0)
 {
+    overallTimer.start();
 }
 
 MainWidget::~MainWidget()
@@ -68,6 +69,7 @@ MainWidget::~MainWidget()
     makeCurrent();
     delete geometries;
     delete harry;
+    delete fountain;
     doneCurrent();
 }
 
@@ -110,10 +112,9 @@ void MainWidget::timerEvent(QTimerEvent *)
     } else {
         // Update rotation
         rotation = QQuaternion::fromAxisAndAngle(rotationAxis, angularSpeed) * rotation;
-
-        // Request an update
-        update();
     }
+    update();
+
 }
 //! [1]
 
@@ -137,7 +138,6 @@ void MainWidget::keyPressEvent(QKeyEvent *e) {
             rightArmRotationUp = false;
         }
     }
-    update();
 }
 
 
@@ -155,10 +155,13 @@ void MainWidget::initializeGL()
 
     // Enable back face culling
     glEnable(GL_CULL_FACE);
+
+    glEnable (GL_BLEND); glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 //! [2]
 
     geometries = new GeometryEngine;
     harry = new Humanoid(3.0, 14.0, 5.0, 180.0, 90.0);
+    fountain = new ParticuleFountain();
 
     // Use QBasicTimer because its faster than QTimer
     timer.start(12, this);
@@ -179,9 +182,18 @@ void MainWidget::initShaders()
     if (!program.link())
         close();
 
-    // Bind shader pipeline for use
-    if (!program.bind())
+    // Compile vertex shader
+    if (!particleShaders.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/particlevertex.glsl"))
         close();
+
+    // Compile fragment shader
+    if (!particleShaders.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/particlefragment.glsl"))
+        close();
+
+    // Link shader pipeline
+    if (!particleShaders.link())
+        close();
+
 }
 //! [3]
 
@@ -205,6 +217,9 @@ void MainWidget::resizeGL(int w, int h)
 
 void MainWidget::paintGL()
 {
+    // Bind shader pipeline for use
+    if (!program.bind())
+        close();
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -220,13 +235,16 @@ void MainWidget::paintGL()
     QMatrix4x4 matrix(baseMatrix);
     matrix.translate(20.0, -5.0, -1.0);
     matrix.rotate(10, 0.0, 1.0, 0.0);
-    program.setUniformValue("mvp", projection * baseMatrix);
     harry->drawGeometry(&program, projection, matrix);
 
     matrix = baseMatrix;
     matrix.translate(-20.0, -5.0, 1.0);
     matrix.rotate(190, 0.0, 1.0, 0.0);
-    program.setUniformValue("mvp", projection * baseMatrix);
     harry->drawGeometry(&program, projection, matrix);
 
+    // Bind shader pipeline for use
+    if (!particleShaders.bind())
+        close();
+    particleShaders.setUniformValue("mvp", projection * baseMatrix);
+    fountain->drawGeometry(&particleShaders, (int)overallTimer.elapsed());
 }
