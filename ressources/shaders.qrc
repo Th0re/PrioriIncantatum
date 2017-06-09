@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>vshader.glsl</file>
         <file>fshader.glsl</file>
+        <file>particlevertex.glsl</file>
+        <file>particlefragment.glsl</file>
     </qresource>
 </RCC>

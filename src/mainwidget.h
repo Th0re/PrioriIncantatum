@@ -53,6 +53,7 @@
 
 #include "geometryengine.h"
 #include "humanoid.h"
+#include "particulefountain.h"
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
@@ -62,6 +63,7 @@
 #include <QBasicTimer>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
+#include <QElapsedTimer>
 
 class GeometryEngine;
 
@@ -89,8 +91,11 @@ protected:
 private:
     QBasicTimer timer;
     QOpenGLShaderProgram program;
+    QOpenGLShaderProgram particleShaders;
     GeometryEngine *geometries;
     Humanoid *harry;
+    ParticuleFountain *fountain;
+    QElapsedTimer overallTimer;
 
     QMatrix4x4 projection;
 
