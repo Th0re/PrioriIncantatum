@@ -52,6 +52,7 @@
 #include "lightninggenerator.h"
 
 #include <QMouseEvent>
+#include <QtMath>
 
 #include <math.h>
 
@@ -70,7 +71,9 @@ MainWidget::~MainWidget()
     makeCurrent();
     delete geometries;
     delete harry;
-    delete fountain;
+    delete middleFountain;
+    delete leftFountain;
+    delete rightFountain;
     doneCurrent();
 }
 
@@ -155,7 +158,7 @@ void MainWidget::initializeGL()
     glEnable(GL_DEPTH_TEST);
 
     // Enable back face culling
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
 
     // Enable blending
     glEnable (GL_BLEND);
@@ -173,7 +176,20 @@ void MainWidget::initializeGL()
 
     geometries = new GeometryEngine;
     harry = new Humanoid(3.0, 14.0, 5.0, 180.0, 90.0);
-    fountain = new ParticuleFountain();
+    middleFountain = new ParticuleFountain();
+
+    QMatrix4x4 rotationMatrix;
+    rotationMatrix(0,0) = qCos(M_PI/3);
+    rotationMatrix(0,1) = -qSin(M_PI/3);
+    rotationMatrix(1,0) = qSin(M_PI/3);
+    rotationMatrix(1,1) = qCos(M_PI/3);
+    leftFountain = new ParticuleFountain(100, QVector4D(1.,.0,.0,1.), rotationMatrix, 20., 15.);
+
+    rotationMatrix(0,0) = qCos(-M_PI/3);
+    rotationMatrix(0,1) = -qSin(-M_PI/3);
+    rotationMatrix(1,0) = qSin(-M_PI/3);
+    rotationMatrix(1,1) = qCos(-M_PI/3);
+    rightFountain = new ParticuleFountain(100, QVector4D(.0,1.0,.0,1.), rotationMatrix, 20., 15.);
 
     // Use QBasicTimer because its faster than QTimer
     timer.start(12, this);
@@ -243,8 +259,8 @@ void MainWidget::paintGL()
     program.setUniformValue("mvp", projection * baseMatrix);
 
     LightningGenerator lg(1);
-    lg.DrawLightning(QVector3D(18.,7.,-1.25), QVector3D(1.,0.,0.), QVector3D(0.,7.,0.), QVector3D(1.,1.,1.), 2, &program);
-    lg.DrawLightning(QVector3D(-18.,7.,1.25), QVector3D(0.,1.,0.), QVector3D(0.,7.,0.), QVector3D(1.,1.,1.), 2, &program);
+    lg.DrawLightning(QVector3D(18.,7.,-1.25), QVector3D(0.,1.,0.), QVector3D(0.,7.,0.), QVector3D(1.,1.,1.), .2, 2, &program);
+    lg.DrawLightning(QVector3D(-18.,7.,1.25), QVector3D(1.,0.,0.), QVector3D(0.,7.,0.), QVector3D(1.,1.,1.), .2, 2, &program);
     geometries->drawGeometry(&program);
 
     QMatrix4x4 matrix(baseMatrix);
@@ -266,5 +282,7 @@ void MainWidget::paintGL()
     matrix = baseMatrix;
     matrix.translate(.0, 7., .0);
     particleShaders.setUniformValue("mvp", projection * matrix);
-    fountain->drawGeometry(&particleShaders, (int)overallTimer.elapsed());
+    middleFountain->drawGeometry(&particleShaders, (int)overallTimer.elapsed());
+    leftFountain->drawGeometry(&particleShaders, (int)overallTimer.elapsed());
+    rightFountain->drawGeometry(&particleShaders, (int)overallTimer.elapsed());
 }

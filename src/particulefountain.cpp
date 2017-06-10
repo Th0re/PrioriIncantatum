@@ -14,9 +14,12 @@ struct ParticleData
     float lifespan;
 };
 
-ParticuleFountain::ParticuleFountain(int nbParticles)
+ParticuleFountain::ParticuleFountain(int nbParticles, QVector4D color, QMatrix4x4 rotationMatrix, float speedFactor, float pointSize)
 {
     initializeOpenGLFunctions();
+
+    this->color = color;
+    this->pointSize = pointSize;
 
     QImage image = QImage(QString(":/particle.bmp"), "BMP");
     if (image.isNull()) {
@@ -28,7 +31,7 @@ ParticuleFountain::ParticuleFountain(int nbParticles)
     this->nbParticles = nbParticles;
     arrayBuf.create();
 
-    initGeometry();
+    initGeometry(rotationMatrix, speedFactor);
 
 }
 
@@ -43,18 +46,20 @@ float rnd() {
     return random()/((float)RAND_MAX);
 }
 
-void ParticuleFountain::initGeometry() {
+void ParticuleFountain::initGeometry(QMatrix4x4 rotationMatrix, float speedFactor) {
 
     ParticleData particles[nbParticles];
+
+
 
     for (int i = 0; i < nbParticles; i++) {
         ParticleData particle;
         particle.weight = 8. + 4.*rnd();
         particle.index = i/(float)nbParticles;
         qreal angle = M_PI*2*rnd();
-        float dist = 40. + 40.*rnd();
-        QVector3D speed(dist*qCos(angle), 60.+30.*rnd(),dist*qSin(angle));
-        particle.baseSpeed = speed;
+        float dist = speedFactor + speedFactor*rnd()/2.;
+        QVector3D speed(dist*qCos(angle), speedFactor+speedFactor*rnd()/2,dist*qSin(angle));
+        particle.baseSpeed = rotationMatrix * speed;
         particle.lifespan = 2000;
 
         particles[i] =  particle;
@@ -104,9 +109,10 @@ void ParticuleFountain::drawGeometry(QOpenGLShaderProgram *particleShader, int e
 
 
     particleShader->setUniformValue("time", elapsedTime);
+    particleShader->setUniformValue("color", color);
 
     texture->bind();
 
-    glPointSize(5.);
+    glPointSize(pointSize);
     glDrawArrays(GL_POINTS, 0, nbParticles);
 }

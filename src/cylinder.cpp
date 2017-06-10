@@ -5,7 +5,7 @@
 #include <QMatrix3x3>
 
 
-Cylinder::Cylinder(QVector3D PT_A, QVector3D COLOR_A, QVector3D PT_B, QVector3D COLOR_B) : indexBuf(QOpenGLBuffer::IndexBuffer)
+Cylinder::Cylinder(QVector3D PT_A, QVector3D COLOR_A, QVector3D PT_B, QVector3D COLOR_B, float ray) : indexBuf(QOpenGLBuffer::IndexBuffer)
 {
     initializeOpenGLFunctions();
 
@@ -14,15 +14,17 @@ Cylinder::Cylinder(QVector3D PT_A, QVector3D COLOR_A, QVector3D PT_B, QVector3D 
     indexBuf.create();
 
     // Initializes cube geometry and transfers it to VBOs
-    initGeometry(PT_A, COLOR_A, PT_B, COLOR_B);
+    initGeometry(PT_A, COLOR_A, PT_B, COLOR_B, ray);
 }
 
-Cylinder::~Cylinder(){
+Cylinder::~Cylinder()
+{
     arrayBuf.destroy();
     indexBuf.destroy();
 }
 
-void Cylinder::drawGeometry(QOpenGLShaderProgram *program){
+void Cylinder::drawGeometry(QOpenGLShaderProgram *program)
+{
     // Tell OpenGL which VBOs to use
     arrayBuf.bind();
     indexBuf.bind();
@@ -44,26 +46,23 @@ void Cylinder::drawGeometry(QOpenGLShaderProgram *program){
     program->setAttributeBuffer(colorLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
 
     // Draw cylinder geometry using indices from VBO 1
-    glDrawElements(GL_TRIANGLE_STRIP, 8, GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_TRIANGLE_STRIP, 10, GL_UNSIGNED_SHORT, 0);
 }
 
-void Cylinder::initGeometry(QVector3D PT_A, QVector3D COLOR_A, QVector3D PT_B, QVector3D COLOR_B){
-
-
+void Cylinder::initGeometry(QVector3D PT_A, QVector3D COLOR_A, QVector3D PT_B, QVector3D COLOR_B, float ray)
+{
 
     // Coordonées des points d'une des face du cylindre si celui-ci passe par P1 (x1, y1, z1)
     // et dont l'axe est colinéaire à l'axe z
-    QVector3D pt1 = QVector3D(PT_A.x(), PT_A.y() + 0.4, PT_A.z());
-    QVector3D pt2 = QVector3D(PT_A.x(), PT_A.y() - 0.4, PT_A.z() + 0.4);
-    QVector3D pt3 = QVector3D(PT_A.x(), PT_A.y() - 0.4, PT_A.z() - 0.4);
+    QVector3D pt1 = QVector3D(PT_A.x(), PT_A.y() + ray, PT_A.z());
+    QVector3D pt2 = QVector3D(PT_A.x(), PT_A.y() - ray, PT_A.z() + ray);
+    QVector3D pt3 = QVector3D(PT_A.x(), PT_A.y() - ray, PT_A.z() - ray);
 
     // Coordonné des point 4, 5 et 6 de la deuxième face
 
-    QVector3D pt4 = QVector3D(PT_B.x(), PT_B.y() + 0.4, PT_B.z()); //pt1 + vectAB;
-
-    QVector3D pt5 = QVector3D(PT_B.x(), PT_B.y() - 0.4, PT_B.z() + 0.4); //pt2 + vectAB;
-
-    QVector3D pt6 = QVector3D(PT_B.x(), PT_B.y() - 0.4, PT_B.z() - 0.4); //pt3 + vectAB;
+    QVector3D pt4 = QVector3D(PT_B.x(), PT_B.y() + ray, PT_B.z());
+    QVector3D pt5 = QVector3D(PT_B.x(), PT_B.y() - ray, PT_B.z() + ray);
+    QVector3D pt6 = QVector3D(PT_B.x(), PT_B.y() - ray, PT_B.z() - ray);
 
     //Tableau des vertex
 
@@ -83,14 +82,16 @@ void Cylinder::initGeometry(QVector3D PT_A, QVector3D COLOR_A, QVector3D PT_B, Q
 
     // Table des indices
 
-    indices[0] = 5;
-    indices[1] = 3;
+    indices[0] = 0;
+    indices[1] = 1;
     indices[2] = 2;
-    indices[3] = 0;
-    indices[4] = 1;
+    indices[3] = 5;
+    indices[4] = 0;
     indices[5] = 3;
-    indices[6] = 4;
-    indices[7] = 5;
+    indices[6] = 1;
+    indices[7] = 4;
+    indices[8] = 5;
+    indices[9] = 3;
 
     // Transfer vertex data to VBO 0
     arrayBuf.bind();

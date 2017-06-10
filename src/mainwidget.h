@@ -94,7 +94,7 @@ private:
     QOpenGLShaderProgram particleShaders;
     GeometryEngine *geometries;
     Humanoid *harry;
-    ParticuleFountain *fountain;
+    ParticuleFountain *middleFountain, *leftFountain, *rightFountain;
     QElapsedTimer overallTimer;
 
     QMatrix4x4 projection;
