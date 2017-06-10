@@ -11,7 +11,7 @@ class ParticuleFountain : protected QOpenGLFunctions
 public:
 //    ParticuleFountain(int nbOfParticules, float width, float top, float bottom);
     ParticuleFountain(int nbParticles);
-    ParticuleFountain() : ParticuleFountain(100000) {}
+    ParticuleFountain() : ParticuleFountain(500) {}
 
     virtual ~ParticuleFountain();
 

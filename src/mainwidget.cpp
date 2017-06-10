@@ -256,6 +256,8 @@ void MainWidget::paintGL()
     // Bind shader pipeline for use
     if (!particleShaders.bind())
         close();
-    particleShaders.setUniformValue("mvp", projection * baseMatrix);
+    matrix = baseMatrix;
+    matrix.translate(.0, 7., .0);
+    particleShaders.setUniformValue("mvp", projection * matrix);
     fountain->drawGeometry(&particleShaders, (int)overallTimer.elapsed());
 }
