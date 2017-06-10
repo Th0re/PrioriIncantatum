@@ -49,6 +49,7 @@
 ****************************************************************************/
 
 #include "mainwidget.h"
+#include "lightninggenerator.h"
 
 #include <QMouseEvent>
 
@@ -154,7 +155,7 @@ void MainWidget::initializeGL()
     glEnable(GL_DEPTH_TEST);
 
     // Enable back face culling
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
 
     // Enable blending
     glEnable (GL_BLEND);
@@ -239,8 +240,11 @@ void MainWidget::paintGL()
     QMatrix4x4 baseMatrix;
     baseMatrix.translate(0.0, -5.0, -35.0);
     baseMatrix.rotate(rotation);
-
     program.setUniformValue("mvp", projection * baseMatrix);
+
+    LightningGenerator lg(1);
+    lg.DrawLightning(QVector3D(18.,7.,-1.25), QVector3D(1.,0.,0.), QVector3D(0.,7.,0.), QVector3D(1.,1.,1.), 2, &program);
+    lg.DrawLightning(QVector3D(-18.,7.,1.25), QVector3D(0.,1.,0.), QVector3D(0.,7.,0.), QVector3D(1.,1.,1.), 2, &program);
     geometries->drawGeometry(&program);
 
     QMatrix4x4 matrix(baseMatrix);
@@ -248,10 +252,13 @@ void MainWidget::paintGL()
     matrix.rotate(10, 0.0, 1.0, 0.0);
     harry->drawGeometry(&program, projection, matrix);
 
+
+
     matrix = baseMatrix;
     matrix.translate(-20.0, -5.0, 1.0);
     matrix.rotate(190, 0.0, 1.0, 0.0);
     harry->drawGeometry(&program, projection, matrix);
+
 
     // Bind shader pipeline for use
     if (!particleShaders.bind())

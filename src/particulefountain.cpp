@@ -55,7 +55,7 @@ void ParticuleFountain::initGeometry() {
         float dist = 40. + 40.*rnd();
         QVector3D speed(dist*qCos(angle), 60.+30.*rnd(),dist*qSin(angle));
         particle.baseSpeed = speed;
-        particle.lifespan = 20000;
+        particle.lifespan = 2000;
 
         particles[i] =  particle;
     }
@@ -107,6 +107,6 @@ void ParticuleFountain::drawGeometry(QOpenGLShaderProgram *particleShader, int e
 
     texture->bind();
 
-    glPointSize(25.);
+    glPointSize(5.);
     glDrawArrays(GL_POINTS, 0, nbParticles);
 }
