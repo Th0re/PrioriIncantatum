@@ -4,5 +4,6 @@
         <file>fshader.glsl</file>
         <file>particlevertex.glsl</file>
         <file>particlefragment.glsl</file>
+        <file>particle.bmp</file>
     </qresource>
 </RCC>

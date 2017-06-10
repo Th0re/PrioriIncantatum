@@ -4,15 +4,14 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
-
-#include "particle.h"
+#include <QOpenGLTexture>
 
 class ParticuleFountain : protected QOpenGLFunctions
 {
 public:
 //    ParticuleFountain(int nbOfParticules, float width, float top, float bottom);
     ParticuleFountain(int nbParticles);
-    ParticuleFountain() : ParticuleFountain(10000) {}
+    ParticuleFountain() : ParticuleFountain(500) {}
 
     virtual ~ParticuleFountain();
 
@@ -20,9 +19,13 @@ public:
 
 
 private:
-    Particle *particle;
+    void initGeometry();
     int nbParticles;
-    QList<float> angles;
+
+    QOpenGLTexture *texture;
+
+    QOpenGLBuffer arrayBuf;
+
 };
 
 #endif // PARTICULEFOUNTAIN_H

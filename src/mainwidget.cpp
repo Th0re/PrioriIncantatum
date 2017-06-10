@@ -156,7 +156,18 @@ void MainWidget::initializeGL()
     // Enable back face culling
     glEnable(GL_CULL_FACE);
 
-    glEnable (GL_BLEND); glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // Enable blending
+    glEnable (GL_BLEND);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Enable point antialiasing
+    glEnable(GL_POINT_SMOOTH);
+    // Enable point sprites
+    glEnable(GL_POINT_SPRITE);
+    glEnable(GL_PROGRAM_POINT_SIZE);
+
+    //glClearColor(0.5,0.5,0.5,1);
+
 //! [2]
 
     geometries = new GeometryEngine;
@@ -205,7 +216,7 @@ void MainWidget::resizeGL(int w, int h)
     qreal aspect = qreal(w) / qreal(h ? h : 1);
 
     // Set near plane to 3.0, far plane to 7.0, field of view 45 degrees
-    const qreal zNear = 1.0, zFar = 70.0, fov = 65.0;
+    const qreal zNear = 1.0, zFar = 200.0, fov = 65.0;
 
     // Reset projection
     projection.setToIdentity();
@@ -245,6 +256,8 @@ void MainWidget::paintGL()
     // Bind shader pipeline for use
     if (!particleShaders.bind())
         close();
-    particleShaders.setUniformValue("mvp", projection * baseMatrix);
+    matrix = baseMatrix;
+    matrix.translate(.0, 7., .0);
+    particleShaders.setUniformValue("mvp", projection * matrix);
     fountain->drawGeometry(&particleShaders, (int)overallTimer.elapsed());
 }
