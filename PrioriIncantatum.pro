@@ -27,5 +27,3 @@ RESOURCES += \
 
 DISTFILES +=
 
-LIBS += -lglut -lGLU
-
