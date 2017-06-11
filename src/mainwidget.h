@@ -53,6 +53,7 @@
 
 #include "geometryengine.h"
 #include "humanoid.h"
+#include "lightning.h"
 #include "particulefountain.h"
 
 #include <QOpenGLWidget>
@@ -95,6 +96,7 @@ private:
     GeometryEngine *geometries;
     Humanoid *harry;
     ParticuleFountain *middleFountain, *leftFountain, *rightFountain;
+    Lightning *leftLightning, *rightLightning;
     QElapsedTimer overallTimer;
 
     QMatrix4x4 projection;
@@ -103,10 +105,8 @@ private:
     QVector3D rotationAxis;
     qreal angularSpeed;
     QQuaternion rotation;
-    float leftArmRotation;
-    bool leftArmRotationUp;
-    float rightArmRotation;
-    bool rightArmRotationUp;
+    QVector3D translation;
+
 };
 
 #endif // MAINWIDGET_H

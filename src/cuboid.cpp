@@ -60,8 +60,6 @@ struct VertexData
 };
 
 
-
-//! [0] 
 Cuboid::Cuboid(float length, float height, float width) : indexBuf(QOpenGLBuffer::IndexBuffer) {
     initializeOpenGLFunctions();
 
@@ -81,12 +79,10 @@ Cuboid::~Cuboid()
     arrayBuf.destroy();
     indexBuf.destroy();
 }
-//! [0]
+
 
 void Cuboid::initGeometry(float length, float height, float width)
 {
-////! [1]
-
 
     VertexData vertices[] = {
         {QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.25f, 0.25f, 0.25f)},
@@ -115,10 +111,10 @@ void Cuboid::initGeometry(float length, float height, float width)
     // Transfer index data to VBO 1
     indexBuf.bind();
     indexBuf.allocate(indices, nbrIndices * sizeof(GLushort));
-//! [1]
+
 }
 
-//! [2]
+
 void Cuboid::drawGeometry(QOpenGLShaderProgram *program)
 {
     // Tell OpenGL which VBOs to use
@@ -145,4 +141,4 @@ void Cuboid::drawGeometry(QOpenGLShaderProgram *program)
     // Draw cube geometry using indices from VBO 1
     glDrawElements(GL_TRIANGLE_STRIP, 14, GL_UNSIGNED_SHORT, 0);
 }
-//! [2]
+

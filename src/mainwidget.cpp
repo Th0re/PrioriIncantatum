@@ -74,6 +74,8 @@ MainWidget::~MainWidget()
     delete middleFountain;
     delete leftFountain;
     delete rightFountain;
+    delete leftLightning;
+    delete rightLightning;
     doneCurrent();
 }
 
@@ -127,20 +129,22 @@ void MainWidget::keyPressEvent(QKeyEvent *e) {
         exit(0);
     }
     if (e->key() == Qt::Key_Left) {
-        harry->setLeftArmAngle(harry->getLeftArmAngle() + ( leftArmRotationUp? -3 : 3 ));
-        if (harry->getLeftArmAngle() > 180) {
-            leftArmRotationUp = true;
-        } else if (harry->getLeftArmAngle() < 0) {
-            leftArmRotationUp = false;
-        }
+        projection.translate(QVector3D(.5,.0,.0));
     }
     if (e->key() == Qt::Key_Right) {
-        harry->setRightArmAngle(harry->getRightArmAngle()  + ( rightArmRotationUp? -3 : 3 ));
-        if (harry->getRightArmAngle() > 180) {
-            rightArmRotationUp = true;
-        } else if (harry->getRightArmAngle() < 0) {
-            rightArmRotationUp = false;
-        }
+        projection.translate(QVector3D(-.5,.0,.0));
+    }
+    if (e->key() == Qt::Key_Up) {
+        projection.translate(QVector3D(.0,.0,.5));
+    }
+    if (e->key() == Qt::Key_Down) {
+        projection.translate(QVector3D(.0,.0,-.5));
+    }
+    if (e->key() == Qt::Key_PageUp) {
+        projection.translate(QVector3D(.0,-.5,.0));
+    }
+    if (e->key() == Qt::Key_PageDown) {
+        projection.translate(QVector3D(.0,.5,.0));
     }
 }
 
@@ -191,6 +195,10 @@ void MainWidget::initializeGL()
     rotationMatrix(1,1) = qCos(-M_PI/3);
     rightFountain = new ParticuleFountain(100, QVector4D(.0,1.0,.0,1.), rotationMatrix, 20., 15.);
 
+
+    leftLightning = new Lightning(QVector3D(1.,.0,.0), QVector3D(1.,1.,1.), 10.);
+    rightLightning = new Lightning(QVector3D(.0,1.,.0), QVector3D(1.,1.,1.), 10.);
+
     // Use QBasicTimer because its faster than QTimer
     timer.start(12, this);
 }
@@ -233,7 +241,7 @@ void MainWidget::resizeGL(int w, int h)
     qreal aspect = qreal(w) / qreal(h ? h : 1);
 
     // Set near plane to 3.0, far plane to 7.0, field of view 45 degrees
-    const qreal zNear = 1.0, zFar = 200.0, fov = 65.0;
+    const qreal zNear = 1.0, zFar = 200.0, fov = 45.0;
 
     // Reset projection
     projection.setToIdentity();
@@ -258,9 +266,6 @@ void MainWidget::paintGL()
     baseMatrix.rotate(rotation);
     program.setUniformValue("mvp", projection * baseMatrix);
 
-    LightningGenerator lg(1);
-    lg.DrawLightning(QVector3D(18.,7.,-1.25), QVector3D(0.,1.,0.), QVector3D(0.,7.,0.), QVector3D(1.,1.,1.), .2, 2, &program);
-    lg.DrawLightning(QVector3D(-18.,7.,1.25), QVector3D(1.,0.,0.), QVector3D(0.,7.,0.), QVector3D(1.,1.,1.), .2, 2, &program);
     geometries->drawGeometry(&program);
 
     QMatrix4x4 matrix(baseMatrix);
@@ -268,13 +273,26 @@ void MainWidget::paintGL()
     matrix.rotate(10, 0.0, 1.0, 0.0);
     harry->drawGeometry(&program, projection, matrix);
 
-
+    matrix.rotate(174.3, 0.0, 1.0, 0.0);
+    matrix.translate(2.05, 12.0, .5);
+    QMatrix4x4 homotetie;
+    homotetie.setToIdentity();
+    homotetie(0,0) = 1.8;
+    matrix *= homotetie;
+    program.setUniformValue("mvp", projection * matrix);
+    rightLightning->drawGeometry(&program);
 
     matrix = baseMatrix;
     matrix.translate(-20.0, -5.0, 1.0);
     matrix.rotate(190, 0.0, 1.0, 0.0);
     harry->drawGeometry(&program, projection, matrix);
 
+    matrix.rotate(174.3, 0.0, 1.0, 0.0);
+    matrix.translate(2.05, 12.0, .5);
+    homotetie(0,0) = 1.8;
+    matrix *= homotetie;
+    program.setUniformValue("mvp", projection * matrix);
+    leftLightning->drawGeometry(&program);
 
     // Bind shader pipeline for use
     if (!particleShaders.bind())

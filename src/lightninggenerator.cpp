@@ -12,7 +12,7 @@ LightningGenerator::LightningGenerator(float prec)
     curDetail = prec;
 }
 
-void LightningGenerator::DrawLightning(QVector3D PT_A, QVector3D COLOR_A, QVector3D PT_B, QVector3D COLOR_B, float ray,float displace, QOpenGLShaderProgram *program)
+void LightningGenerator::drawLightning(QVector3D PT_A, QVector3D COLOR_A, QVector3D PT_B, QVector3D COLOR_B, float ray,float displace, QOpenGLShaderProgram *program)
 {
   if (displace < curDetail)
   {
@@ -42,7 +42,7 @@ void LightningGenerator::DrawLightning(QVector3D PT_A, QVector3D COLOR_A, QVecto
 
     displace = displace/2; // plus on avance dans le détail plus les déplacement doivent être petit
 
-    LightningGenerator::DrawLightning(PT_A, COLOR_A, PT_MID, COLOR_MID, ray, displace, program);
-    LightningGenerator::DrawLightning(PT_MID, COLOR_MID, PT_B, COLOR_B, ray, displace, program);
+    LightningGenerator::drawLightning(PT_A, COLOR_A, PT_MID, COLOR_MID, ray, displace, program);
+    LightningGenerator::drawLightning(PT_MID, COLOR_MID, PT_B, COLOR_B, ray, displace, program);
   }
 }
