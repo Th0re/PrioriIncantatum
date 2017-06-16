@@ -184,13 +184,13 @@ void MainWidget::initializeGL()
     rotationMatrix(0,1) = -qSin(M_PI/3);
     rotationMatrix(1,0) = qSin(M_PI/3);
     rotationMatrix(1,1) = qCos(M_PI/3);
-    leftFountain = new ParticuleFountain(100, QVector4D(1.,.0,.0,1.), rotationMatrix, 20., 15., 2000, 8., 0.);
+    leftFountain = new ParticuleFountain(100, QVector3D(1.,.0,.0), rotationMatrix, 20., 15., 2000, 8., 0.);
 
     rotationMatrix(0,0) = qCos(-M_PI/3);
     rotationMatrix(0,1) = -qSin(-M_PI/3);
     rotationMatrix(1,0) = qSin(-M_PI/3);
     rotationMatrix(1,1) = qCos(-M_PI/3);
-    rightFountain = new ParticuleFountain(100, QVector4D(.0,1.0,.0,1.), rotationMatrix, 20., 15., 2000, 8., 0.);
+    rightFountain = new ParticuleFountain(100, QVector3D(.0,1.0,.0), rotationMatrix, 20., 15., 2000, 8., 0.);
 
 
     leftLightning = new Lightning(QVector3D(1.,.0,.0), QVector3D(1.,1.,1.), 10.);

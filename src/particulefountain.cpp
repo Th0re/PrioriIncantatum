@@ -3,7 +3,7 @@
 #include <QtMath>
 
 
-ParticuleFountain::ParticuleFountain(int nbParticles, QVector4D color,
+ParticuleFountain::ParticuleFountain(int nbParticles, QVector3D color,
                          QMatrix4x4 rotationMatrix, float speedFactor,
                          float pointSize, int lifespan, float baseWeight, float maxDrift)
 {
@@ -29,7 +29,7 @@ ParticuleFountain::ParticuleFountain(int nbParticles, QVector4D color,
     this->speedFactor = speedFactor;
     this->baseWeight = baseWeight;
 
-    this->particlesPos = new QVector3D[nbParticles];
+    this->particlesData = new ParticleBufferData[nbParticles];
 
     initGeometry();
 
@@ -53,13 +53,11 @@ void ParticuleFountain::initGeometry()
 
     for (int i = 0; i < nbParticles; i++)
     {
-        ParticleData particle;
-        particle.init(rotationMatrix, speedFactor, baseWeight, lifespan - (int)(i*lifespan/(float)nbParticles), pos, 0);
+        Particle particle;
+        particle.init(rotationMatrix, speedFactor, baseWeight, lifespan - (int)(i*lifespan/(float)nbParticles), pos, 0, color);
         particles.append(particle);
     }
 
-    arrayBuf.bind();
-    arrayBuf.allocate(particlesPos, nbParticles*sizeof(QVector3D));
 }
 
 void ParticuleFountain::drawGeometry(QOpenGLShaderProgram *particleShader, int elapsedTime)
@@ -71,13 +69,19 @@ void ParticuleFountain::drawGeometry(QOpenGLShaderProgram *particleShader, int e
     for( int i = 0; i < nbParticles; ++i) {
         if (!particles[i].update(elapsedTime, lifespan))
         {
-            particles[i].init(rotationMatrix, speedFactor, baseWeight, lifespan, pos, elapsedTime);
+            particles[i].init(rotationMatrix, speedFactor, baseWeight, lifespan, pos, elapsedTime, color);
         }
 
-        particlesPos[i] = particles[i].position;
+        particlesData[i].position = particles[i].position;
+        float alpha;
+        if ( particles[i].lifespan/lifespan > .5)
+            alpha = 1.;
+        else
+            alpha = .5 + .5*particles[i].lifespan/lifespan;
+        particlesData[i].color = QVector4D(particles[i].color, alpha);
 
     }
-    arrayBuf.allocate(particlesPos, nbParticles*sizeof(QVector3D));
+    arrayBuf.allocate(particlesData, nbParticles*sizeof(ParticleBufferData));
 
 
     // Offset for position
@@ -86,15 +90,22 @@ void ParticuleFountain::drawGeometry(QOpenGLShaderProgram *particleShader, int e
     // Tell OpenGL programmable pipeline how to locate vertex position data
     int posLocation = particleShader->attributeLocation("pos");
     particleShader->enableAttributeArray(posLocation);
-    particleShader->setAttributeBuffer(posLocation, GL_FLOAT, offset, 3, sizeof(ParticleData));
+    particleShader->setAttributeBuffer(posLocation, GL_FLOAT, offset, 3, sizeof(ParticleBufferData));
 
+    // Offset for color
+    offset = sizeof(QVector3D);
+
+    // Tell OpenGL programmable pipeline how to locate vertex color data
+    int colorLocation = particleShader->attributeLocation("color");
+    particleShader->enableAttributeArray(colorLocation);
+    particleShader->setAttributeBuffer(colorLocation, GL_FLOAT, offset, 4, sizeof(ParticleBufferData));
     texture->bind();
 
     glPointSize(pointSize);
     glDrawArrays(GL_POINTS, 0, nbParticles);
 }
 
-void ParticuleFountain::ParticleData::init(QMatrix4x4 rotationMatrix, float speedFactor, float baseWeight, int lifespan, QVector3D pos, int elapsedTime)
+void ParticuleFountain::Particle::init(QMatrix4x4 rotationMatrix, float speedFactor, float baseWeight, int lifespan, QVector3D pos, int elapsedTime, QVector3D color)
 {
     this->weight = baseWeight + baseWeight*rnd()/2;
     qreal angle = M_PI*2*rnd();
@@ -104,9 +115,10 @@ void ParticuleFountain::ParticleData::init(QMatrix4x4 rotationMatrix, float spee
     this->lifespan = lifespan;
     this->lastUpdate = elapsedTime;
     this->position = pos;
+    this->color = color;
 }
 
-bool ParticuleFountain::ParticleData::update(int elapsedTime, int maxLifespan)
+bool ParticuleFountain::Particle::update(int elapsedTime, int maxLifespan)
 {
     int time = elapsedTime - lastUpdate;
     lastUpdate = elapsedTime;
