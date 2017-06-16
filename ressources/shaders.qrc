@@ -5,5 +5,9 @@
         <file>particlevertex.glsl</file>
         <file>particlefragment.glsl</file>
         <file>particle.bmp</file>
+        <file>models/hp.mtl</file>
+        <file>models/hp.obj</file>
+        <file>models/vdm.mtl</file>
+        <file>models/vdm.obj</file>
     </qresource>
 </RCC>

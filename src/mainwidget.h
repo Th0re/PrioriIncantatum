@@ -51,7 +51,6 @@
 #ifndef MAINWIDGET_H
 #define MAINWIDGET_H
 
-#include "geometryengine.h"
 #include "humanoid.h"
 #include "lightning.h"
 #include "particulefountain.h"
@@ -93,7 +92,6 @@ private:
     QBasicTimer timer;
     QOpenGLShaderProgram program;
     QOpenGLShaderProgram particleShaders;
-    GeometryEngine *geometries;
     Humanoid *harry;
     ParticuleFountain *middleFountain, *leftFountain, *rightFountain;
     Lightning *leftLightning, *rightLightning;
@@ -106,6 +104,7 @@ private:
     qreal angularSpeed;
     QQuaternion rotation;
     QVector3D translation;
+    float drift;
 
 };
 

@@ -58,7 +58,6 @@
 
 MainWidget::MainWidget(QWidget *parent) :
     QOpenGLWidget(parent),
-    geometries(0),
     angularSpeed(0)
 {
     overallTimer.start();
@@ -69,7 +68,6 @@ MainWidget::~MainWidget()
     // Make sure the context is current when deleting the texture
     // and the buffers.
     makeCurrent();
-    delete geometries;
     delete harry;
     delete middleFountain;
     delete leftFountain;
@@ -178,7 +176,6 @@ void MainWidget::initializeGL()
 
 //! [2]
 
-    geometries = new GeometryEngine;
     harry = new Humanoid(3.0, 14.0, 5.0, 180.0, 90.0);
     middleFountain = new ParticuleFountain();
 
@@ -187,13 +184,13 @@ void MainWidget::initializeGL()
     rotationMatrix(0,1) = -qSin(M_PI/3);
     rotationMatrix(1,0) = qSin(M_PI/3);
     rotationMatrix(1,1) = qCos(M_PI/3);
-    leftFountain = new ParticuleFountain(100, QVector4D(1.,.0,.0,1.), rotationMatrix, 20., 15.);
+    leftFountain = new ParticuleFountain(100, QVector4D(1.,.0,.0,1.), rotationMatrix, 20., 15., 2000, 8., 0.);
 
     rotationMatrix(0,0) = qCos(-M_PI/3);
     rotationMatrix(0,1) = -qSin(-M_PI/3);
     rotationMatrix(1,0) = qSin(-M_PI/3);
     rotationMatrix(1,1) = qCos(-M_PI/3);
-    rightFountain = new ParticuleFountain(100, QVector4D(.0,1.0,.0,1.), rotationMatrix, 20., 15.);
+    rightFountain = new ParticuleFountain(100, QVector4D(.0,1.0,.0,1.), rotationMatrix, 20., 15., 2000, 8., 0.);
 
 
     leftLightning = new Lightning(QVector3D(1.,.0,.0), QVector3D(1.,1.,1.), 10.);
@@ -201,6 +198,8 @@ void MainWidget::initializeGL()
 
     // Use QBasicTimer because its faster than QTimer
     timer.start(12, this);
+
+
 }
 
 //! [3]
@@ -241,7 +240,7 @@ void MainWidget::resizeGL(int w, int h)
     qreal aspect = qreal(w) / qreal(h ? h : 1);
 
     // Set near plane to 3.0, far plane to 7.0, field of view 45 degrees
-    const qreal zNear = 1.0, zFar = 200.0, fov = 45.0;
+    const qreal zNear = 1.0, zFar = 200.0, fov = 65.0;
 
     // Reset projection
     projection.setToIdentity();
@@ -264,9 +263,6 @@ void MainWidget::paintGL()
     QMatrix4x4 baseMatrix;
     baseMatrix.translate(0.0, -5.0, -35.0);
     baseMatrix.rotate(rotation);
-    program.setUniformValue("mvp", projection * baseMatrix);
-
-    geometries->drawGeometry(&program);
 
     QMatrix4x4 matrix(baseMatrix);
     matrix.translate(20.0, -5.0, -1.0);
@@ -277,7 +273,7 @@ void MainWidget::paintGL()
     matrix.translate(2.05, 12.0, .5);
     QMatrix4x4 homotetie;
     homotetie.setToIdentity();
-    homotetie(0,0) = 1.8;
+    homotetie(0,0) = 1.8-drift/10.;
     matrix *= homotetie;
     program.setUniformValue("mvp", projection * matrix);
     rightLightning->drawGeometry(&program);
@@ -289,7 +285,7 @@ void MainWidget::paintGL()
 
     matrix.rotate(174.3, 0.0, 1.0, 0.0);
     matrix.translate(2.05, 12.0, .5);
-    homotetie(0,0) = 1.8;
+    homotetie(0,0) = 1.8+drift/10.;
     matrix *= homotetie;
     program.setUniformValue("mvp", projection * matrix);
     leftLightning->drawGeometry(&program);
@@ -300,7 +296,23 @@ void MainWidget::paintGL()
     matrix = baseMatrix;
     matrix.translate(.0, 7., .0);
     particleShaders.setUniformValue("mvp", projection * matrix);
+    middleFountain->setPos(QVector3D(drift,.0,.0));
     middleFountain->drawGeometry(&particleShaders, (int)overallTimer.elapsed());
+    leftFountain->setPos(QVector3D(drift,.0,.0));
     leftFountain->drawGeometry(&particleShaders, (int)overallTimer.elapsed());
+    rightFountain->setPos(QVector3D(drift,.0,.0));
     rightFountain->drawGeometry(&particleShaders, (int)overallTimer.elapsed());
+    if (drift < -15.)
+    {
+        drift+=.3;
+    }
+    else if (drift > 15.)
+    {
+        drift-=.3;
+    }
+    else
+    {
+        drift += 0.4 - rand()*0.8/RAND_MAX;
+    }
+
 }
