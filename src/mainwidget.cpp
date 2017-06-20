@@ -61,6 +61,7 @@ MainWidget::MainWidget(QWidget *parent) :
     angularSpeed(0)
 {
     overallTimer.start();
+    randomOn = false;
 }
 
 MainWidget::~MainWidget()
@@ -69,6 +70,7 @@ MainWidget::~MainWidget()
     // and the buffers.
     makeCurrent();
     delete harry;
+    delete floor;
     delete middleFountain;
     delete leftFountain;
     delete rightFountain;
@@ -113,7 +115,9 @@ void MainWidget::timerEvent(QTimerEvent *)
     // Stop rotation when speed goes below threshold
     if (angularSpeed < 0.01) {
         angularSpeed = 0.0;
-    } else {
+    }
+    else
+    {
         // Update rotation
         rotation = QQuaternion::fromAxisAndAngle(rotationAxis, angularSpeed) * rotation;
     }
@@ -123,26 +127,45 @@ void MainWidget::timerEvent(QTimerEvent *)
 //! [1]
 
 void MainWidget::keyPressEvent(QKeyEvent *e) {
-    if (e->key() == Qt::Key_Escape) {
+    if (e->key() == Qt::Key_Escape)
+    {
         exit(0);
     }
-    if (e->key() == Qt::Key_Left) {
+    if (e->key() == Qt::Key_Left)
+    {
         projection.translate(QVector3D(.5,.0,.0));
     }
-    if (e->key() == Qt::Key_Right) {
+    if (e->key() == Qt::Key_Right)
+    {
         projection.translate(QVector3D(-.5,.0,.0));
     }
-    if (e->key() == Qt::Key_Up) {
+    if (e->key() == Qt::Key_Up)
+    {
         projection.translate(QVector3D(.0,.0,.5));
     }
-    if (e->key() == Qt::Key_Down) {
+    if (e->key() == Qt::Key_Down)
+    {
         projection.translate(QVector3D(.0,.0,-.5));
     }
-    if (e->key() == Qt::Key_PageUp) {
+    if (e->key() == Qt::Key_PageUp)
+    {
         projection.translate(QVector3D(.0,-.5,.0));
     }
-    if (e->key() == Qt::Key_PageDown) {
+    if (e->key() == Qt::Key_PageDown)
+    {
         projection.translate(QVector3D(.0,.5,.0));
+    }
+    if (e->key() == Qt::Key_Space)
+    {
+        randomOn = !randomOn;
+    }
+    if (e->key() == Qt::Key_H)
+    {
+        drift += 0.6;
+    }
+    if (e->key() == Qt::Key_V)
+    {
+        drift -= 0.6;
     }
 }
 
@@ -177,20 +200,31 @@ void MainWidget::initializeGL()
 //! [2]
 
     harry = new Humanoid(3.0, 14.0, 5.0, 180.0, 90.0);
-    middleFountain = new ParticuleFountain();
+    floor = new Floor(30., QVector3D(.5, .5, 1.), QVector3D(.05, .05, .4));
+
+    QList<QVector3D> colors;
+    colors.append(QVector3D(1.,.0,.0));
+    colors.append(QVector3D(1.,1.,.0));
+    colors.append(QVector3D(0.,1.,.0));
+    colors.append(QVector3D(1.,1.,1.));
+    middleFountain = new ParticuleFountain(10000, colors, QMatrix4x4(), 80., 5., 2000, 16., 10.);
 
     QMatrix4x4 rotationMatrix;
     rotationMatrix(0,0) = qCos(M_PI/3);
     rotationMatrix(0,1) = -qSin(M_PI/3);
     rotationMatrix(1,0) = qSin(M_PI/3);
     rotationMatrix(1,1) = qCos(M_PI/3);
-    leftFountain = new ParticuleFountain(100, QVector3D(1.,.0,.0), rotationMatrix, 20., 15., 2000, 8., 0.);
+    colors.clear();
+    colors.append(QVector3D(1.,.0,.0));
+    leftFountain = new ParticuleFountain(100, colors, rotationMatrix, 20., 25., 2000, 8., 0.);
 
     rotationMatrix(0,0) = qCos(-M_PI/3);
     rotationMatrix(0,1) = -qSin(-M_PI/3);
     rotationMatrix(1,0) = qSin(-M_PI/3);
     rotationMatrix(1,1) = qCos(-M_PI/3);
-    rightFountain = new ParticuleFountain(100, QVector3D(.0,1.0,.0), rotationMatrix, 20., 15., 2000, 8., 0.);
+    colors.clear();
+    colors.append(QVector3D(.0,1.0,.0));
+    rightFountain = new ParticuleFountain(100, colors, rotationMatrix, 20., 25., 2000, 8., 0.);
 
 
     leftLightning = new Lightning(QVector3D(1.,.0,.0), QVector3D(1.,1.,1.), 10.);
@@ -265,6 +299,11 @@ void MainWidget::paintGL()
     baseMatrix.rotate(rotation);
 
     QMatrix4x4 matrix(baseMatrix);
+    matrix.translate(.0, -5.0, .0);
+    program.setUniformValue("mvp", projection * matrix);
+    floor->drawGeometry(&program);
+
+    matrix = baseMatrix;
     matrix.translate(20.0, -5.0, -1.0);
     matrix.rotate(10, 0.0, 1.0, 0.0);
     harry->drawGeometry(&program, projection, matrix);
@@ -295,24 +334,25 @@ void MainWidget::paintGL()
         close();
     matrix = baseMatrix;
     matrix.translate(.0, 7., .0);
-    particleShaders.setUniformValue("mvp", projection * matrix);
     middleFountain->setPos(QVector3D(drift,.0,.0));
-    middleFountain->drawGeometry(&particleShaders, (int)overallTimer.elapsed());
+    middleFountain->drawGeometry(&particleShaders, (int)overallTimer.elapsed(), projection * matrix, matrix);
     leftFountain->setPos(QVector3D(drift,.0,.0));
-    leftFountain->drawGeometry(&particleShaders, (int)overallTimer.elapsed());
+    leftFountain->drawGeometry(&particleShaders, (int)overallTimer.elapsed(), projection * matrix, matrix);
     rightFountain->setPos(QVector3D(drift,.0,.0));
-    rightFountain->drawGeometry(&particleShaders, (int)overallTimer.elapsed());
-    if (drift < -15.)
+    rightFountain->drawGeometry(&particleShaders, (int)overallTimer.elapsed(), projection * matrix, matrix);
+    if (drift < -16.)
     {
-        drift+=.3;
+        drift+=.6;
     }
-    else if (drift > 15.)
+    else if (drift > 16.)
     {
-        drift-=.3;
+        drift-=.6;
     }
     else
     {
-        drift += 0.4 - rand()*0.8/RAND_MAX;
+        if (randomOn) {
+            drift += 0.4 - rand()*0.8/RAND_MAX;
+        }
     }
 
 }

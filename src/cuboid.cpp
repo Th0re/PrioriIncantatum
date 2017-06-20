@@ -60,7 +60,8 @@ struct VertexData
 };
 
 
-Cuboid::Cuboid(float length, float height, float width) : indexBuf(QOpenGLBuffer::IndexBuffer) {
+Cuboid::Cuboid(float length, float height, float width) : indexBuf(QOpenGLBuffer::IndexBuffer)
+{
     initializeOpenGLFunctions();
 
     // Generate 2 VBOs

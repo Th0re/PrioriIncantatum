@@ -51,6 +51,7 @@
 #ifndef MAINWIDGET_H
 #define MAINWIDGET_H
 
+#include "floor.h"
 #include "humanoid.h"
 #include "lightning.h"
 #include "particulefountain.h"
@@ -93,6 +94,7 @@ private:
     QOpenGLShaderProgram program;
     QOpenGLShaderProgram particleShaders;
     Humanoid *harry;
+    Floor *floor;
     ParticuleFountain *middleFountain, *leftFountain, *rightFountain;
     Lightning *leftLightning, *rightLightning;
     QElapsedTimer overallTimer;
@@ -105,6 +107,7 @@ private:
     QQuaternion rotation;
     QVector3D translation;
     float drift;
+    bool randomOn;
 
 };
 

@@ -11,7 +11,9 @@ SOURCES += \
     src/particulefountain.cpp \
     src/lightninggenerator.cpp \
     src/cylinder.cpp \
-    src/lightning.cpp
+    src/lightning.cpp \
+    src/floor.cpp
+
 
 HEADERS += \
     src/mainwidget.h \
@@ -20,8 +22,8 @@ HEADERS += \
     src/particulefountain.h \
     src/lightninggenerator.h \
     src/cylinder.h \
-    src/lightning.h
-
+    src/lightning.h \
+    src/floor.h
 RESOURCES += \
     ressources/shaders.qrc \
 

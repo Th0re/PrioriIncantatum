@@ -13,8 +13,6 @@ public:
     Lightning(QVector3D colorA, QVector3D colorB, float size);
     Lightning() : Lightning(QVector3D(1.,1.,1.), QVector3D(1.,1.,1.), 10.) {}
 
-    ~Lightning();
-
     void drawGeometry(QOpenGLShaderProgram *program);
 
 private:

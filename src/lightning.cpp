@@ -8,10 +8,6 @@ Lightning::Lightning(QVector3D colorA, QVector3D colorB, float size)
     this->size = size;
 }
 
-Lightning::~Lightning() {
-
-}
-
 void Lightning::drawGeometry(QOpenGLShaderProgram *program) {
     lightningGenerator.drawLightning(QVector3D(.0,.0,.0), colorA, QVector3D(size, 0., 0.), colorB, .2, 2, program);
 }

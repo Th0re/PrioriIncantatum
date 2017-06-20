@@ -1,7 +1,8 @@
 #include "humanoid.h"
 
 
-Humanoid::Humanoid(float lenght, float height, float width, float leftArmAngle, float rightArmAngle) {
+Humanoid::Humanoid(float lenght, float height, float width, float leftArmAngle, float rightArmAngle)
+{
     initializeOpenGLFunctions();
 
     this->lenght = lenght;
@@ -35,24 +36,29 @@ Humanoid::~Humanoid()
     delete leg2;
 }
 
-void Humanoid::setLeftArmAngle(float newAngle) {
+void Humanoid::setLeftArmAngle(float newAngle)
+{
     this->leftArmAngle = newAngle;
 }
 
-void Humanoid::setRightArmAngle(float newAngle) {
+void Humanoid::setRightArmAngle(float newAngle)
+{
     this->rightArmAngle = newAngle;
 }
 
-float Humanoid::getLeftArmAngle() {
+float Humanoid::getLeftArmAngle()
+{
     return this->leftArmAngle;
 }
 
-float Humanoid::getRightArmAngle() {
+float Humanoid::getRightArmAngle()
+{
     return this->rightArmAngle;
 }
 
 
-void Humanoid::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 projection, QMatrix4x4 baseMatrix) {
+void Humanoid::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 projection, QMatrix4x4 baseMatrix)
+{
 
     QMatrix4x4 matrix(baseMatrix);
 

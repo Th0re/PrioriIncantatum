@@ -3,24 +3,22 @@
 #include <QtMath>
 
 
-ParticuleFountain::ParticuleFountain(int nbParticles, QVector3D color,
+ParticuleFountain::ParticuleFountain(int nbParticles, QList<QVector3D> colors,
                          QMatrix4x4 rotationMatrix, float speedFactor,
                          float pointSize, int lifespan, float baseWeight, float maxDrift)
 {
     initializeOpenGLFunctions();
 
-    this->color = color;
+    if (colors.isEmpty())
+        colors.append(QVector3D(1.,1.,1.));
+    this->colors = colors;
     this->pointSize = pointSize;
     this->maxDrift = maxDrift;
     this->pos = QVector3D();
     this->lifespan = lifespan;
 
     QImage image = QImage(QString(":/particle.bmp"), "BMP");
-    if (image.isNull()) {
-        throw 42;
-    } else {
-        texture = new QOpenGLTexture(image);
-    }
+    texture = new QOpenGLTexture(image);
 
     this->nbParticles = nbParticles;
     arrayBuf.create();
@@ -39,6 +37,7 @@ ParticuleFountain::~ParticuleFountain()
 {
     arrayBuf.destroy();
     delete texture;
+    delete particlesData;
 }
 
 // return a random float between 0 and 1
@@ -54,13 +53,13 @@ void ParticuleFountain::initGeometry()
     for (int i = 0; i < nbParticles; i++)
     {
         Particle particle;
-        particle.init(rotationMatrix, speedFactor, baseWeight, lifespan - (int)(i*lifespan/(float)nbParticles), pos, 0, color);
+        particle.init(rotationMatrix, speedFactor, baseWeight, lifespan - (int)(i*lifespan/(float)nbParticles), pos, 0, colors[int((colors.count())*rnd())]);
         particles.append(particle);
     }
 
 }
 
-void ParticuleFountain::drawGeometry(QOpenGLShaderProgram *particleShader, int elapsedTime)
+void ParticuleFountain::drawGeometry(QOpenGLShaderProgram *particleShader, int elapsedTime, QMatrix4x4 mvp, QMatrix4x4 matrix)
 {
 
 
@@ -69,18 +68,23 @@ void ParticuleFountain::drawGeometry(QOpenGLShaderProgram *particleShader, int e
     for( int i = 0; i < nbParticles; ++i) {
         if (!particles[i].update(elapsedTime, lifespan))
         {
-            particles[i].init(rotationMatrix, speedFactor, baseWeight, lifespan, pos, elapsedTime, color);
+            particles[i].init(rotationMatrix, speedFactor, baseWeight, lifespan, pos, elapsedTime, colors[int((colors.count())*rnd())]);
         }
 
-        particlesData[i].position = particles[i].position;
+        particlesData[i].position = mvp * particles[i].position;
         float alpha;
         if ( particles[i].lifespan/lifespan > .5)
             alpha = 1.;
         else
             alpha = .5 + .5*particles[i].lifespan/lifespan;
         particlesData[i].color = QVector4D(particles[i].color, alpha);
+        float tmp1 = particles[i].position.z();
+        float tmp2 = (matrix*particles[i].position).z();
+        particlesData[i].size = (particles[i].weight/15.)*pointSize*(1-((matrix*particles[i].position).z()-1)/199.);
 
     }
+    std::sort(particlesData, &particlesData[nbParticles-1]);
+
     arrayBuf.allocate(particlesData, nbParticles*sizeof(ParticleBufferData));
 
 
@@ -93,7 +97,7 @@ void ParticuleFountain::drawGeometry(QOpenGLShaderProgram *particleShader, int e
     particleShader->setAttributeBuffer(posLocation, GL_FLOAT, offset, 3, sizeof(ParticleBufferData));
 
     // Offset for color
-    offset = sizeof(QVector3D);
+    offset += sizeof(QVector3D);
 
     // Tell OpenGL programmable pipeline how to locate vertex color data
     int colorLocation = particleShader->attributeLocation("color");
@@ -101,7 +105,15 @@ void ParticuleFountain::drawGeometry(QOpenGLShaderProgram *particleShader, int e
     particleShader->setAttributeBuffer(colorLocation, GL_FLOAT, offset, 4, sizeof(ParticleBufferData));
     texture->bind();
 
-    glPointSize(pointSize);
+    // Offset for color
+    offset += sizeof(QVector4D);
+
+    // Tell OpenGL programmable pipeline how to locate vertex color data
+    int pointSizeLocation = particleShader->attributeLocation("pointSize");
+    particleShader->enableAttributeArray(pointSizeLocation);
+    particleShader->setAttributeBuffer(pointSizeLocation, GL_FLOAT, offset, 1, sizeof(ParticleBufferData));
+    texture->bind();
+
     glDrawArrays(GL_POINTS, 0, nbParticles);
 }
 
@@ -125,7 +137,8 @@ bool ParticuleFountain::Particle::update(int elapsedTime, int maxLifespan)
 
     lifespan -= time;
 
-    if (lifespan > 0) {
+    if (lifespan > 0)
+    {
         speed += QVector3D(.0, -9.81*time*weight/maxLifespan, .0);
         position += speed*time/maxLifespan;
         return true;

@@ -10,12 +10,12 @@ class ParticuleFountain : protected QOpenGLFunctions
 {
 public:
 //    ParticuleFountain(int nbOfParticules, float width, float top, float bottom);
-    ParticuleFountain(int nbParticles, QVector3D color, QMatrix4x4 rotationMatrix, float speedFactor, float pointSize, int lifespan, float baseWeight, float maxDrift);
-    ParticuleFountain() : ParticuleFountain(10000, QVector3D(1.0,1.0,1.0), QMatrix4x4(), 80., 5., 2000, 16., 10.) {}
+    ParticuleFountain(int nbParticles, QList<QVector3D> colors, QMatrix4x4 rotationMatrix, float speedFactor, float pointSize, int lifespan, float baseWeight, float maxDrift);
+    ParticuleFountain() : ParticuleFountain(10000, QList<QVector3D>(), QMatrix4x4(), 80., 5., 2000, 16., 10.) {}
 
     virtual ~ParticuleFountain();
 
-    void drawGeometry(QOpenGLShaderProgram *particleShader, int elapsedTime);
+    void drawGeometry(QOpenGLShaderProgram *particleShader, int elapsedTime, QMatrix4x4 mvp, QMatrix4x4 matrix);
 
     QVector3D getPos() { return pos; }
     void setPos(QVector3D newPos) { pos = newPos; }
@@ -37,6 +37,8 @@ private:
     {
         QVector3D position;
         QVector4D color;
+        float size;
+        bool operator<(const ParticleBufferData p2) { return this->position.z() > p2.position.z();}
     };
 
     void initGeometry();
@@ -52,7 +54,7 @@ private:
     float baseWeight;
 
     QOpenGLTexture *texture;
-    QVector3D color;
+    QList<QVector3D> colors;
 
     QOpenGLBuffer arrayBuf;
     QList<Particle> particles;
