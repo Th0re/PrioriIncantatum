@@ -2,6 +2,9 @@
 #include "time.h"
 #include "cylinder.h"
 
+/////////////////////////////// PUBLIC ///////////////////////////////////////
+//============================= LIFECYCLE ====================================
+
 LightningGenerator::LightningGenerator()
 {
     curDetail = 10;
@@ -12,6 +15,22 @@ LightningGenerator::LightningGenerator(float prec)
     curDetail = prec;
 }
 
+//============================= OPERATIONS ===================================
+
+/**************************************************************************
+* Name: drawLightning
+* Description: Initializes a particle
+* Inputs:
+- PT_A: center of the first face for the cylinder
+- COLOR_A: Color of the first face for the cylinder
+- PT_B: center of the second face for the cylinder
+- COLOR_B: Color of the second face for the cylinder
+- ray: used to create the cylinder
+- displace: Base displacement of the point
+- *program:
+* Returns:
+- void
+**************************************************************************/
 void LightningGenerator::drawLightning(QVector3D PT_A, QVector3D COLOR_A, QVector3D PT_B, QVector3D COLOR_B, float ray,float displace, QOpenGLShaderProgram *program)
 {
   if (displace < curDetail)

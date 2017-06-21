@@ -1,5 +1,8 @@
 #include "lightning.h"
 
+/////////////////////////////// PUBLIC ///////////////////////////////////////
+//============================= LIFECYCLE ====================================
+
 Lightning::Lightning(QVector3D colorA, QVector3D colorB, float size)
 {
     lightningGenerator = LightningGenerator(1);
@@ -8,6 +11,7 @@ Lightning::Lightning(QVector3D colorA, QVector3D colorB, float size)
     this->size = size;
 }
 
+//============================= OPERATIONS ===================================
 void Lightning::drawGeometry(QOpenGLShaderProgram *program) {
     lightningGenerator.drawLightning(QVector3D(.0,.0,.0), colorA, QVector3D(size, 0., 0.), colorB, .2, 2, program);
 }

@@ -4,6 +4,8 @@
 #include <QVector3D>
 #include <QMatrix3x3>
 
+/////////////////////////////// PUBLIC ///////////////////////////////////////
+//============================= LIFECYCLE ====================================
 
 Cylinder::Cylinder(QVector3D PT_A, QVector3D COLOR_A, QVector3D PT_B, QVector3D COLOR_B, float ray) : indexBuf(QOpenGLBuffer::IndexBuffer)
 {
@@ -23,6 +25,17 @@ Cylinder::~Cylinder()
     indexBuf.destroy();
 }
 
+//============================= OPERATIONS ===================================
+
+
+/**************************************************************************
+* Name: drawGeometry
+* Description: Used to display the shape using shaders
+* Inputs:
+- *program: ShaderProgram used to colorize the cylinder
+* Returns:
+- void
+**************************************************************************/
 void Cylinder::drawGeometry(QOpenGLShaderProgram *program)
 {
     // Tell OpenGL which VBOs to use
@@ -49,6 +62,18 @@ void Cylinder::drawGeometry(QOpenGLShaderProgram *program)
     glDrawElements(GL_TRIANGLE_STRIP, 10, GL_UNSIGNED_SHORT, 0);
 }
 
+/**************************************************************************
+* Name: initGeometry
+* Description: Used to create the shape of
+* the cylinder and interpolate the color
+* Inputs:
+- PT_A: center of the first face
+- COLOR_A: Color of the first face
+- PT_B: center of the second face
+- COLOR_B: Color of the second face
+* Returns:
+- void
+**************************************************************************/
 void Cylinder::initGeometry(QVector3D PT_A, QVector3D COLOR_A, QVector3D PT_B, QVector3D COLOR_B, float ray)
 {
 

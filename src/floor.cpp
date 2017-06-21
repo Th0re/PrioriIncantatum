@@ -5,6 +5,8 @@
 #include <QMatrix3x3>
 #include <QtMath>
 
+/////////////////////////////// PUBLIC ///////////////////////////////////////
+//============================= LIFECYCLE ====================================
 
 Floor::Floor(float ray, QVector3D centerColor, QVector3D borderColor) : indexBuf(QOpenGLBuffer::IndexBuffer)
 {
@@ -24,6 +26,18 @@ Floor::~Floor()
     indexBuf.destroy();
 }
 
+//============================= OPERATIONS ===================================
+
+/**************************************************************************
+* Name: initGeometry
+* Description: Used to create the shape of the floor, the color is a gradient
+* Inputs:
+- ray: radius of the circle
+- centerColor: Color of the center
+- width: Color of the border
+* Returns:
+- void
+**************************************************************************/
 void Floor::initGeometry(float ray, QVector3D centerColor, QVector3D borderColor)
 {
 
@@ -56,6 +70,14 @@ void Floor::initGeometry(float ray, QVector3D centerColor, QVector3D borderColor
     indexBuf.allocate(indices, nbrIndices * sizeof(GLushort));
 }
 
+/**************************************************************************
+* Name: drawGeometry
+* Description: Used to display the shape using shaders
+* Inputs:
+- *program: ShaderProgram used to colorize the floor
+* Returns:
+- void
+**************************************************************************/
 void Floor::drawGeometry(QOpenGLShaderProgram *program)
 {
     // Tell OpenGL which VBOs to use

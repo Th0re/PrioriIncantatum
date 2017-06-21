@@ -2,6 +2,8 @@
 
 #include <QtMath>
 
+/////////////////////////////// PUBLIC ///////////////////////////////////////
+//============================= LIFECYCLE ====================================
 
 ParticuleFountain::ParticuleFountain(int nbParticles, QList<QVector3D> colors,
                          QMatrix4x4 rotationMatrix, float speedFactor,
@@ -40,6 +42,14 @@ ParticuleFountain::~ParticuleFountain()
     delete particlesData;
 }
 
+//============================= OPERATIONS ===================================
+
+/**************************************************************************
+* Name:rnd
+* Description: returns a random float between 0 and 1
+* Returns:
+- float: random number between 0 and 1
+**************************************************************************/
 // return a random float between 0 and 1
 float rnd()
 {
@@ -59,6 +69,17 @@ void ParticuleFountain::initGeometry()
 
 }
 
+/**************************************************************************
+* Name: drawGeometry
+* Description: Used to display the shape using shaders
+* Inputs:
+- *program: Particle Shader used to animate the shape and colorize it
+- elapsedTime: Elapsed time
+- mvp: matrix of the scene
+- matrix: matrix of the particules
+* Returns:
+- void
+**************************************************************************/
 void ParticuleFountain::drawGeometry(QOpenGLShaderProgram *particleShader, int elapsedTime, QMatrix4x4 mvp, QMatrix4x4 matrix)
 {
 
@@ -115,6 +136,20 @@ void ParticuleFountain::drawGeometry(QOpenGLShaderProgram *particleShader, int e
     glDrawArrays(GL_POINTS, 0, nbParticles);
 }
 
+/**************************************************************************
+* Name: init
+* Description: Initializes a particle
+* Inputs:
+- rotationMatrix: Rotation matrix of a particle
+- speedFactor: Speed factor
+- baseWeight
+- lifespan: Life duration
+- pos: Position of the particle
+- elapsedTime: Elapsed Time
+- color: color of the particle
+* Returns:
+- void
+**************************************************************************/
 void ParticuleFountain::Particle::init(QMatrix4x4 rotationMatrix, float speedFactor, float baseWeight, int lifespan, QVector3D pos, int elapsedTime, QVector3D color)
 {
     this->weight = baseWeight + baseWeight*rnd()/2;
@@ -128,6 +163,15 @@ void ParticuleFountain::Particle::init(QMatrix4x4 rotationMatrix, float speedFac
     this->color = color;
 }
 
+/**************************************************************************
+* Name: update
+* Description: Update the position of the particle
+* Inputs:
+- elapsedTime: Elapsed time
+- maxLifeSpan: Maximum life duration
+* Returns:
+- bool: returns if the particle is still alive
+**************************************************************************/
 bool ParticuleFountain::Particle::update(int elapsedTime, int maxLifespan)
 {
     int time = elapsedTime - lastUpdate;

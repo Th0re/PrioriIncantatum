@@ -1,5 +1,7 @@
 #include "humanoid.h"
 
+/////////////////////////////// PUBLIC ///////////////////////////////////////
+//============================= LIFECYCLE ====================================
 
 Humanoid::Humanoid(float lenght, float height, float width, float leftArmAngle, float rightArmAngle)
 {
@@ -36,6 +38,8 @@ Humanoid::~Humanoid()
     delete leg2;
 }
 
+//============================= ATTRIBUTE ACCESSORS ==========================
+
 void Humanoid::setLeftArmAngle(float newAngle)
 {
     this->leftArmAngle = newAngle;
@@ -56,7 +60,18 @@ float Humanoid::getRightArmAngle()
     return this->rightArmAngle;
 }
 
+//============================= OPERATIONS ===================================
 
+/**************************************************************************
+* Name: drawGeometry
+* Description: Used to display the shape of the humanoid
+* Inputs:
+- *program: ShaderProgram used to place the humanoid in the world
+- projection: projection of the shape
+- baseMatrix: Base matrix of the humanoid
+* Returns:
+- void
+**************************************************************************/
 void Humanoid::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 projection, QMatrix4x4 baseMatrix)
 {
 

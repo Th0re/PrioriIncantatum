@@ -56,6 +56,9 @@
 
 #include <math.h>
 
+/////////////////////////////// PUBLIC ///////////////////////////////////////
+//============================= LIFECYCLE ====================================
+
 MainWidget::MainWidget(QWidget *parent) :
     QOpenGLWidget(parent),
     angularSpeed(0)
@@ -79,7 +82,7 @@ MainWidget::~MainWidget()
     doneCurrent();
 }
 
-//! [0]
+//============================= OPERATIONS ===================================
 void MainWidget::mousePressEvent(QMouseEvent *e)
 {
     // Save mouse press position
@@ -104,9 +107,8 @@ void MainWidget::mouseReleaseEvent(QMouseEvent *e)
     // Increase angular speed
     angularSpeed += acc;
 }
-//! [0]
 
-//! [1]
+
 void MainWidget::timerEvent(QTimerEvent *)
 {
     // Decrease angular speed (friction)

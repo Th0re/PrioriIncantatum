@@ -59,6 +59,8 @@ struct VertexData
     QVector3D color;
 };
 
+/////////////////////////////// PUBLIC ///////////////////////////////////////
+//============================= LIFECYCLE ====================================
 
 Cuboid::Cuboid(float length, float height, float width) : indexBuf(QOpenGLBuffer::IndexBuffer)
 {
@@ -81,7 +83,18 @@ Cuboid::~Cuboid()
     indexBuf.destroy();
 }
 
+//============================= OPERATIONS ===================================
 
+/**************************************************************************
+* Name: initGeometry
+* Description: Used to create the shape of the cuboid
+* Inputs:
+- length: length of the cuboid
+- height: height of the cuboid
+- width: width of the cuboid
+* Returns:
+- void
+**************************************************************************/
 void Cuboid::initGeometry(float length, float height, float width)
 {
 
@@ -115,7 +128,14 @@ void Cuboid::initGeometry(float length, float height, float width)
 
 }
 
-
+/**************************************************************************
+* Name: drawGeometry
+* Description: Used to display the shape using shaders
+* Inputs:
+- *program: ShaderProgram used to colorize the cuboid
+* Returns:
+- void
+**************************************************************************/
 void Cuboid::drawGeometry(QOpenGLShaderProgram *program)
 {
     // Tell OpenGL which VBOs to use
