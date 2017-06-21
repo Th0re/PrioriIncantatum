@@ -1,6 +1,6 @@
 QT       += core gui widgets
 
-TARGET = template
+TARGET = PrioriIncantatum
 TEMPLATE = app
 
 SOURCES += \

@@ -78,8 +78,6 @@ void ParticuleFountain::drawGeometry(QOpenGLShaderProgram *particleShader, int e
         else
             alpha = .5 + .5*particles[i].lifespan/lifespan;
         particlesData[i].color = QVector4D(particles[i].color, alpha);
-        float tmp1 = particles[i].position.z();
-        float tmp2 = (matrix*particles[i].position).z();
         particlesData[i].size = (particles[i].weight/15.)*pointSize*(1-((matrix*particles[i].position).z()-1)/199.);
 
     }
